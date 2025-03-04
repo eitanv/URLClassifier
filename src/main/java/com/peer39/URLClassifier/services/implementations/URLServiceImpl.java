@@ -20,7 +20,7 @@ public class URLServiceImpl implements URLService {
         } catch (Exception e) {
             System.out.println("Error fetching content from " + url.substring(0, 30) + ": " + e.getMessage().substring(0, 40));
         }
-        return content==null? "" : content;
+        return content == null ? "" : content;
     }
 
 
