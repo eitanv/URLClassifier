@@ -3,9 +3,12 @@ package com.peer39.URLClassifier.rest;
 import com.peer39.URLClassifier.services.URLService;
 import com.peer39.URLClassifier.services.WebContentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import java.util.List;
 import java.util.Map;
 
@@ -15,31 +18,30 @@ public class ClassifierController {
 
     @Autowired
     private URLService urlService;
-
     @Autowired
     private WebContentService webContentService;
-
-    private static final String EXAMPLE_URL = "https://www.example.com";
 
     @PostMapping("/urls")
     public Map<String, String> getUrlsTexts(@RequestBody List<String> urls) {
         Map<String, String> urlToCleanedContentMap = new HashMap<>();
-        if (urls.isEmpty()) {
-            urls.add(EXAMPLE_URL);
-        }
-        for (String url : urls) {
-            urlToCleanedContentMap.put(url, processUrl(url));
-        }
+        List<CompletableFuture<Void>> futures = urls.stream()
+                .map(url -> CompletableFuture.runAsync(() -> {
+                    String cleanedContent = processUrl(url);
+                    synchronized (urlToCleanedContentMap) {
+                        urlToCleanedContentMap.put(url, cleanedContent);
+                    }
+                }))
+                .collect(Collectors.toList());
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
         return urlToCleanedContentMap;
     }
 
-    private String processUrl(String url) {
+    private String processUrl(@NonNull String url) {
         String originalContent = urlService.getTextFromUrl(url);
-        System.out.printf("Original content from %s:%n%s%n", url, originalContent);
+        //System.out.println("Original content from " + url + " is: " + (originalContent.isEmpty() ? "" : originalContent.substring(0, 48)));
 
         String cleanedContent = webContentService.getTextFromUrl(originalContent);
-        System.out.printf("Cleaned text from %s:%n%s%n", url, cleanedContent);
-
+        //System.out.println("Cleaned content from " + url + " is: " + cleanedContent);
         return cleanedContent;
     }
 }

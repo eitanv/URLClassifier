@@ -6,20 +6,22 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class WebContentService {
+
     public WebContentService() {
     }
 
     public String getTextFromUrl(String htmlContent) {
-
+        if (htmlContent == null) {
+            return "";
+        }
         try {
             Document document = Jsoup.parse(htmlContent);
             document.select("script, style").remove();
             return document.text();
         } catch (Exception e) {
-            // Log the error and handle it gracefully
-            return "Error parsing HTML content.";
+            System.out.println("Error parsing HTML content: " + e.getMessage());
+            return "";
         }
-
     }
 }
 
