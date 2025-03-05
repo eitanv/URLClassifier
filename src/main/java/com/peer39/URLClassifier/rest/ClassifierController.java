@@ -9,12 +9,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
+import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @RequestMapping("/classifier")
@@ -31,22 +29,27 @@ public class ClassifierController {
      */
     @PostMapping("/urls")
     public Map<String, String> getUrlsTexts(@RequestBody List<String> urls) {
-        Map<String, String> urlToCleanedContentMap = new HashMap<>();
+        Map<String, String> urlToCleanedContentMap = new ConcurrentHashMap<>();
         // Process each URL asynchronously
-        CompletableFuture<Void>[] urlProcessingTasks = urls.stream().map(url -> CompletableFuture.runAsync(() -> {
+        CompletableFuture[] urlProcessingTasks = urls.stream().map(url -> CompletableFuture.runAsync(() -> {
+            if (url == null || url.trim().isEmpty()) {
+                return; // Skip null or empty URLs
+            }
             String cleanedContent = processUrl(url);
             // Store the cleaned content in the map
-            synchronized (urlToCleanedContentMap) {
-                urlToCleanedContentMap.put(url, cleanedContent);
-            }
+            urlToCleanedContentMap.put(url, cleanedContent);
         })).toArray(CompletableFuture[]::new); //Store urlProcessingTasks in an array to be used by .allOf
         CompletableFuture.allOf(urlProcessingTasks).join(); // Wait for all tasks to complete
         return urlToCleanedContentMap;
     }
 
-    private String processUrl(@NonNull String url) {
-        String originalContent = urlService.getTextFromUrl(url); // Fetch the raw HTML content
-        String cleanedContent = webContentService.getTextFromUrl(originalContent); // Clean the content from tags and scripts
-        return cleanedContent;
+    protected String processUrl(@NonNull String url) {
+        try {
+            String originalContent = urlService.getTextFromUrl(url); // Fetch the raw HTML content
+            return webContentService.getTextFromUrl(originalContent); // Clean the content from tags and scripts
+        } catch (Exception e) {
+            System.out.println("Error processing URL: " + url + ": " + e.getMessage());
+            return "";
+        }
     }
 }

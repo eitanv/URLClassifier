@@ -23,7 +23,7 @@ public class URLServiceImpl implements URLService {
         try {
             content = restTemplate.getForObject(url, String.class); //Calling the URL to retrieve the HTML content
         } catch (Exception e) {
-            System.out.println("Error fetching content from " + url.substring(0, 30) + ": " + e.getMessage().substring(0, 40));
+            System.out.println("Error fetching content from " + url + ": " + (e.getMessage().length() > 80 ? e.getMessage().substring(0, 120) : e.getMessage()));
         }
         return content == null ? "" : content; //getForObject can return null, empty string is returned in that case
     }
