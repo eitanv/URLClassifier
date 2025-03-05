@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -24,25 +25,28 @@ public class ClassifierController {
     @Autowired
     private WebContentService webContentService;
 
+    /**
+     * @param urls A list of URLs to process
+     * @return A map of URLs to their cleaned text content
+     */
     @PostMapping("/urls")
     public Map<String, String> getUrlsTexts(@RequestBody List<String> urls) {
         Map<String, String> urlToCleanedContentMap = new HashMap<>();
-        List<CompletableFuture<Void>> futures = urls.stream().map(url -> CompletableFuture.runAsync(() -> {
+        // Process each URL asynchronously
+        CompletableFuture<Void>[] urlProcessingTasks = urls.stream().map(url -> CompletableFuture.runAsync(() -> {
             String cleanedContent = processUrl(url);
+            // Store the cleaned content in the map
             synchronized (urlToCleanedContentMap) {
                 urlToCleanedContentMap.put(url, cleanedContent);
             }
-        })).collect(Collectors.toList());
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+        })).toArray(CompletableFuture[]::new); //Store urlProcessingTasks in an array to be used by .allOf
+        CompletableFuture.allOf(urlProcessingTasks).join(); // Wait for all tasks to complete
         return urlToCleanedContentMap;
     }
 
     private String processUrl(@NonNull String url) {
-        String originalContent = urlService.getTextFromUrl(url);
-        //System.out.println("Original content from " + url + " is: " + (originalContent.isEmpty() ? "" : originalContent.substring(0, 48)));
-
-        String cleanedContent = webContentService.getTextFromUrl(originalContent);
-        //System.out.println("Cleaned content from " + url + " is: " + cleanedContent);
+        String originalContent = urlService.getTextFromUrl(url); // Fetch the raw HTML content
+        String cleanedContent = webContentService.getTextFromUrl(originalContent); // Clean the content from tags and scripts
         return cleanedContent;
     }
 }
