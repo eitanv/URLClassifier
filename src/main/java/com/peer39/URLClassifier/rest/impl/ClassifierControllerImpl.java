@@ -5,9 +5,6 @@ import com.peer39.URLClassifier.services.URLService;
 import com.peer39.URLClassifier.services.WebContentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -24,7 +21,7 @@ public class ClassifierControllerImpl implements ClassifierController {
     private WebContentService webContentService;
 
     @Override
-    public Map<String, String> getUrlsTexts(@RequestBody List<String> urls) {
+    public Map<String, String> getUrlsTexts(List<String> urls) {
         Map<String, String> urlToCleanedContentMap = new ConcurrentHashMap<>();
         // Process each URL asynchronously
         CompletableFuture[] urlProcessingTasks = urls.stream().map(url -> CompletableFuture.runAsync(() -> {
