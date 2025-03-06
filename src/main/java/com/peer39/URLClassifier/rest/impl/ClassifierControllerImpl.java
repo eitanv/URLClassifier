@@ -1,6 +1,8 @@
 package com.peer39.URLClassifier.rest.impl;
 
 import com.peer39.URLClassifier.rest.ClassifierController;
+import com.peer39.URLClassifier.services.CategoryClassifierService;
+import com.peer39.URLClassifier.services.ModelInitializerService;
 import com.peer39.URLClassifier.services.URLService;
 import com.peer39.URLClassifier.services.WebContentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,10 @@ public class ClassifierControllerImpl implements ClassifierController {
     private URLService urlService;
     @Autowired
     private WebContentService webContentService;
+    @Autowired
+    private ModelInitializerService initializerService;
+    @Autowired
+    private CategoryClassifierService categoryClassifierService;
 
     @Override
     public Map<String, String> getUrlsTexts(List<String> urls) {
@@ -36,7 +42,7 @@ public class ClassifierControllerImpl implements ClassifierController {
         return urlToCleanedContentMap;
     }
 
-    protected String processUrl(@NonNull String url) {
+    private String processUrl(@NonNull String url) {
         try {
             String originalContent = urlService.getTextFromUrl(url); // Fetch the raw HTML content
             return webContentService.getTextFromUrl(originalContent); // Clean the content from tags and scripts
@@ -44,5 +50,11 @@ public class ClassifierControllerImpl implements ClassifierController {
             System.out.println("Error processing URL: " + url + ": " + e.getMessage());
             return "";
         }
+    }
+
+    @Override
+    public boolean isURLinCategory(List<String> urls) {
+        Map<String, String> urlToCleanedContentMap = getUrlsTexts(urls); //Get the cleaned content from the URLs
+        return categoryClassifierService.isURLinCategory(urlToCleanedContentMap.values(), initializerService.getCategories()); //Check if any URL content matches any category phrases
     }
 }

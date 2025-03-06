@@ -1,6 +1,5 @@
 package com.peer39.URLClassifier.runners;
 
-import com.peer39.URLClassifier.model.Keyword;
 import com.peer39.URLClassifier.model.KeywordCategory;
 import com.peer39.URLClassifier.rest.ClassifierController;
 import com.peer39.URLClassifier.services.CategoryClassifierService;
@@ -32,49 +31,34 @@ public class ClassifierRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        List<KeywordCategory> inputCategories = getCategoriesFromArgs(args[0]);
-        List<String> urls = getUrlsFromArgs(args[1]);
-
-        Map<String, String> urlToCleanedContentMap = classifierController.getUrlsTexts(urls);
-
+        List<KeywordCategory> inputCategories = getCategoriesFromArgs(args[0]); //Get the categories to classify by from the input names
+        List<String> urls = getUrlsFromArgs(args[1]); //Get the URLs to classify from the input
+        Map<String, String> urlToCleanedContentMap = classifierController.getUrlsTexts(urls); //Get the cleaned content from the URLs
         // For each URL in the map, classify the content
-        urlToCleanedContentMap.forEach((url, cleanedContent) -> {
-            List<String> matchedCategories = CategoryClassifierService.classifyURL(cleanedContent, inputCategories);
+        urlToCleanedContentMap.values().forEach((cleanedContent) -> { //For each URL's Content
+            List<String> matchedCategories = CategoryClassifierService.classifyURL(cleanedContent, inputCategories); //Return the matching Categories
             matchedCategories.forEach(category -> System.out.println("Found a match to category: " + category));
         });
     }
 
     private List<KeywordCategory> getCategoriesFromArgs(String arg) {
         String[] inputCategories = arg.split(";");
-        List<KeywordCategory> categories = new ArrayList<>();
-        for (String categoryName : inputCategories) {
-            for (KeywordCategory category : initializerService.getCategories()) {
-                if (category.getCategoryName().equals(categoryName)) {
-                    categories.add(category);
-                    break;
-                }
-            }
+        List<KeywordCategory> initializedCategories = initializerService.getCategories(); //Get the predefined categories
+        List<KeywordCategory> classifyByCategories = new ArrayList<>();
+        for (String categoryName : inputCategories) { //For each category name in the input
+            initializedCategories.stream().filter(category -> category.getCategoryName().equals(categoryName)) //If the category name is in the predefined categories
+                    .findFirst().ifPresent(classifyByCategories::add); //Add it to the list of categories to classify by
         }
-        return categories;
-
+        return classifyByCategories;
     }
 
     private List<String> getUrlsFromArgs(String arg) {
         return Arrays.asList(arg.split(";"));
     }
 
-    private String processUrl(String url) {
-        try {
-            String originalContent = urlService.getTextFromUrl(url);
-            return webContentService.getTextFromUrl(originalContent);
-        } catch (Exception e) {
-            System.out.println("Error processing URL: " + url + ": " + e.getMessage());
-            return "";
-        }
-    }
     //Unused local variable and method to initialize the categories if not using the injected ModelInitializerService.
     // initializeModel() should  be called
-    private static List<KeywordCategory> allCategories = null;
+    /*private static List<KeywordCategory> allCategories = null;
 
     private void initializeModel() {
         if (allCategories == null) {
@@ -90,5 +74,5 @@ public class ClassifierRunner implements CommandLineRunner {
             basketballCategory.setKeywords(Arrays.asList(new Keyword("basketball"), new Keyword("nba"), new Keyword("ncaa"), new Keyword("lebron james"), new Keyword("john stokton"), new Keyword("anthony davis")));
             allCategories.add(basketballCategory);
         }
-    }
+    }*/
 }

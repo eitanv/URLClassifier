@@ -16,4 +16,12 @@ public interface ClassifierController {
      */
     @PostMapping("/urls")
     Map<String, String> getUrlsTexts(@RequestBody List<String> urls);
+
+    /**
+     * @param urls A list of URLs to process
+     * @return True if any URL content matches any initialized category phrases
+     */
+    @PostMapping("/urls/exists")
+    boolean isURLinCategory(@RequestBody List<String> urls);
+
 }
