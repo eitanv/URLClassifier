@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface CategoryClassifierService {
 
-    //boolean isURLinCatrgory(List<String> urls, List<KeywordCategory> categories);
+    //boolean isURLinCategory(List<String> urls, List<KeywordCategory> categories);
 
     List<String> classifyURL(String content, List<KeywordCategory> categories);
 

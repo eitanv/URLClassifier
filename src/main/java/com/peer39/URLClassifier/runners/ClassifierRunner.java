@@ -32,7 +32,6 @@ public class ClassifierRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        //initializeModel();
         List<KeywordCategory> inputCategories = getCategoriesFromArgs(args[0]);
         List<String> urls = getUrlsFromArgs(args[1]);
 
@@ -41,9 +40,7 @@ public class ClassifierRunner implements CommandLineRunner {
         // For each URL in the map, classify the content
         urlToCleanedContentMap.forEach((url, cleanedContent) -> {
             List<String> matchedCategories = CategoryClassifierService.classifyURL(cleanedContent, inputCategories);
-            matchedCategories.forEach(category -> {
-                System.out.println("Found a match to category: " + category);
-            });
+            matchedCategories.forEach(category -> System.out.println("Found a match to category: " + category));
         });
     }
 
@@ -63,8 +60,7 @@ public class ClassifierRunner implements CommandLineRunner {
     }
 
     private List<String> getUrlsFromArgs(String arg) {
-        List<String> inputURLs = Arrays.asList(arg.split(";"));
-        return inputURLs;
+        return Arrays.asList(arg.split(";"));
     }
 
     private String processUrl(String url) {
@@ -76,7 +72,8 @@ public class ClassifierRunner implements CommandLineRunner {
             return "";
         }
     }
-    //Unused method to initialize the categories if not injected from the ModelInitializerService
+    //Unused local variable and method to initialize the categories if not using the injected ModelInitializerService.
+    // initializeModel() should  be called
     private static List<KeywordCategory> allCategories = null;
 
     private void initializeModel() {
