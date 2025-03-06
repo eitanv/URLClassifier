@@ -47,7 +47,7 @@ public class ClassifierControllerImpl implements ClassifierController {
             String originalContent = urlService.getTextFromUrl(url); // Fetch the raw HTML content
             return webContentService.getTextFromUrl(originalContent); // Clean the content from tags and scripts
         } catch (Exception e) {
-            System.out.println("Error processing URL: " + url + ": " + e.getMessage());
+            //System.out.println("Error processing URL: " + url + ": " + e.getMessage());
             return "";
         }
     }

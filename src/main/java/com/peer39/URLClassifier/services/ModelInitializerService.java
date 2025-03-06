@@ -21,7 +21,7 @@ public class ModelInitializerService {
         return categories;
     }
 
-    private static void initializeModel() {
+    private void initializeModel() {
         categories = new ArrayList<>();
 
         List<Keyword> keywordList = Arrays.asList(new Keyword("Star War"), new Keyword("star war"), new Keyword("starwars"), new Keyword("starwar"), new Keyword("r2d2"), new Keyword("may the force be with you"));
@@ -31,7 +31,7 @@ public class ModelInitializerService {
         categories.add(createKeywordCategory("Basketball", keywordList));
     }
 
-    private static KeywordCategory createKeywordCategory(String categoryName, List<Keyword> keywords) {
+    private KeywordCategory createKeywordCategory(String categoryName, List<Keyword> keywords) {
         KeywordCategory category = new KeywordCategory();
         category.setCategoryName(categoryName);
         category.setKeywords(keywords);

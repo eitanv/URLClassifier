@@ -14,10 +14,6 @@ public class URLServiceImpl implements URLService {
         restTemplate = new RestTemplate();
     }
 
-    /**
-     * @param url The website's address
-     * @return The raw HTML content of the page
-     */
     @Override
     public String getTextFromUrl(String url) {
         String content = "";

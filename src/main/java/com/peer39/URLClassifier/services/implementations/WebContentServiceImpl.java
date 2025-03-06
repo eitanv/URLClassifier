@@ -11,10 +11,6 @@ public class WebContentServiceImpl implements WebContentService {
     public WebContentServiceImpl() {
     }
 
-    /**
-     * @param htmlContent The raw HTML content of a web page
-     * @return The cleaned text of a web page, excluding script and style elements
-     */
     @Override
     public String getTextFromUrl(String htmlContent) {
         if (htmlContent == null) {
@@ -25,7 +21,7 @@ public class WebContentServiceImpl implements WebContentService {
             document.select("script, style").remove(); // Removes script and tags
             return document.text();
         } catch (Exception e) {
-            System.out.println("Error parsing HTML content: " + e.getMessage());
+            //System.out.println("Error parsing HTML content: " + e.getMessage());
             return "";
         }
     }
