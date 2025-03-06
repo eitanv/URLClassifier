@@ -19,7 +19,6 @@ import java.util.Map;
 @Component
 public class ClassifierRunner implements CommandLineRunner {
 
-    private static List<KeywordCategory> allCategories = null;
     @Autowired
     private URLService urlService;
     @Autowired
@@ -30,25 +29,6 @@ public class ClassifierRunner implements CommandLineRunner {
     private ModelInitializerService initializerService;
     @Autowired
     private CategoryClassifierService CategoryClassifierService;
-
-    private void initializeModel() {
-        if (allCategories == null) {
-            allCategories = initializerService.getCategories();
-        }
-        if (allCategories == null) {
-            allCategories = new ArrayList<>();
-
-            KeywordCategory starWarsCategory = new KeywordCategory();
-            starWarsCategory.setCategoryName("Star Wars");
-            starWarsCategory.setKeywords(Arrays.asList(new Keyword("Star Wars"), new Keyword("star war"), new Keyword("starwars"), new Keyword("starwar"), new Keyword("r2d2"), new Keyword("may the force be with you")));
-            allCategories.add(starWarsCategory);
-
-            KeywordCategory basketballCategory = new KeywordCategory();
-            basketballCategory.setCategoryName("Basketball");
-            basketballCategory.setKeywords(Arrays.asList(new Keyword("basketball"), new Keyword("nba"), new Keyword("ncaa"), new Keyword("lebron james"), new Keyword("john stokton"), new Keyword("anthony davis")));
-            allCategories.add(basketballCategory);
-        }
-    }
 
     @Override
     public void run(String... args) {
@@ -94,6 +74,24 @@ public class ClassifierRunner implements CommandLineRunner {
         } catch (Exception e) {
             System.out.println("Error processing URL: " + url + ": " + e.getMessage());
             return "";
+        }
+    }
+    //Unused method to initialize the categories if not injected from the ModelInitializerService
+    private static List<KeywordCategory> allCategories = null;
+
+    private void initializeModel() {
+        if (allCategories == null) {
+            allCategories = new ArrayList<>();
+
+            KeywordCategory starWarsCategory = new KeywordCategory();
+            starWarsCategory.setCategoryName("Star Wars");
+            starWarsCategory.setKeywords(Arrays.asList(new Keyword("Star Wars"), new Keyword("star war"), new Keyword("starwars"), new Keyword("starwar"), new Keyword("r2d2"), new Keyword("may the force be with you")));
+            allCategories.add(starWarsCategory);
+
+            KeywordCategory basketballCategory = new KeywordCategory();
+            basketballCategory.setCategoryName("Basketball");
+            basketballCategory.setKeywords(Arrays.asList(new Keyword("basketball"), new Keyword("nba"), new Keyword("ncaa"), new Keyword("lebron james"), new Keyword("john stokton"), new Keyword("anthony davis")));
+            allCategories.add(basketballCategory);
         }
     }
 }
